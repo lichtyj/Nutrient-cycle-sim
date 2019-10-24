@@ -8,16 +8,17 @@ class GameEngine {
         this.toRemove = [];
         this.time = 0;
         this.environment;
+        this.size = 512;
     }
 
     init() {
-        // this.ui.pushMessage("BUILDING WORLD...", "#FFF");
         window.setTimeout(this.gameLoop, 10);
-        // this.environment = new Environment(128, 0.00000000000001, 0.00000000001);
-        // this.environment = new Environment(128, 0.00001, 0.00001);
-        // this.environment = new Environment(128, 0, 0);
-        this.environment = new Environment(256,256);
+        this.environment = new Environment(512,512);
         this.environment.init();
+
+        for(let i = 0; i < 10; i++) {
+            LivingEntity.create(Math.random()*this.size | 0, Math.random()*this.size | 0, 255);
+        }
     }
 
     gameLoop() { 
@@ -46,11 +47,12 @@ class GameEngine {
 
     draw() {
         this.ctx.canvas.width = this.ctx.canvas.width;
-        this.environment.draw(this.ctx);
-        this.entities.sort((a,b) => {return (a.constructor.name < b.constructor.name) ? 1: -1})
+        let imageData = new ImageData(this.size, this.size);
+        this.environment.draw(imageData, imageData.data.length);
         for (var i = 0; i < this.entities.length; i++) {
-            this.entities[i].draw(this.ctx);
+            this.entities[i].draw(imageData);
         }
+        this.ctx.putImageData(imageData, 0, 0);
     }
 
     addEntity(entity) {
@@ -59,5 +61,15 @@ class GameEngine {
 
     remove(entity) {
         this.toRemove.push(entity);
+    }
+
+    eat(x, y, amount) {
+        let avail = Math.min(this.environment.get(x,y), amount);
+        this.environment.set(x,y, -avail);
+        return avail;
+    }
+
+    decay(x,y, amount) {
+        this.environment.set(x,y, amount);
     }
 }

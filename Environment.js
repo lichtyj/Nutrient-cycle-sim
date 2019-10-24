@@ -4,7 +4,7 @@ class Environment {
         this.nutrients = new Array(size * size);
         this.nutrients_last = new Array(size * size);
         this.flip = false;
-        this.amount = 2500000;
+        this.amount = 20000000;
     }
 
     init() {
@@ -31,7 +31,7 @@ class Environment {
     }
 
     update(dt) {
-        let rate = 0.0000005;
+        let rate = 0.000001;
         if (this.flip) {
             this.diffuse(this.nutrients, this.nutrients_last, rate, dt);
         } else {
@@ -60,9 +60,7 @@ class Environment {
         }
     }
 
-    draw(ctx) {
-        let size = this.size*this.size*4;
-        let imageData = new ImageData(this.size, this.size);
+    draw(imageData, size) {
         let i,j;
         var count = 0;
         for (i = 0, j = 0; i < size; i += 4, j++) {
@@ -75,6 +73,14 @@ class Environment {
         if (Math.abs(count - this.amount) > 1) {
             this.reset(count);
         }
-        ctx.putImageData(imageData, 0, 0);
+    }
+
+    get(x,y) {
+        return this.nutrients[this.ix(x,y)];
+    }
+
+    set(x, y, amt) {
+        this.nutrients[this.ix(x,y)] += amt;
+        this.amount += amt;
     }
 }
