@@ -1,3 +1,8 @@
+class Entity {
+    constructor(x,y) {
+        this.x = x;
+        this.y = y;
+    }
 
     static create(x,y) {
         var obj = new Entity(x,y);
