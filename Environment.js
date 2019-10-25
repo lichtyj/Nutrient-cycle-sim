@@ -3,8 +3,11 @@ class Environment {
         this.size = size;
         this.nutrients = new Array(size * size);
         this.nutrients_last = new Array(size * size);
+        this.rot = new Array(size * size);
+        this.rot_last = new Array(size * size);
         this.flip = false;
         this.amount = 20000000;
+        this.rotAmount = 0;
     }
 
     init() {
@@ -16,7 +19,9 @@ class Environment {
                 total += i;
             }
         }
-        this.reset(total);   
+        this.reset(total);
+        this.rot.fill(0);
+        this.rot_last.fill
     }
 
     reset(total) {
@@ -34,8 +39,11 @@ class Environment {
         let rate = 0.000001;
         if (this.flip) {
             this.diffuse(this.nutrients, this.nutrients_last, rate, dt);
+            this.diffuse(this.rot, this.rot_last, rate/2, dt);
+            this.transform(this.nutrients, this.rot, 10, dt);
         } else {
             this.diffuse(this.nutrients_last, this.nutrients, rate, dt);
+            this.diffuse(this.rot_last, this.rot, rate/2, dt);
         }
         this.flip = !this.flip;
     }
@@ -60,13 +68,30 @@ class Environment {
         }
     }
 
+    transform(to, from, diff, dt) {
+        let i, j;
+        let temp;
+        for (j = 0; j < this.size; j++) {
+            for (i = 0; i < this.size; i++) {
+                temp = Math.min(from[this.ix(i,j)], diff*dt);
+                if (temp < 0) console.log("sdfsdf");
+                to[this.ix(i,j)] += temp;
+                from[this.ix(i,j)] -= temp;
+                this.amount += temp;
+                this.rotAmount -= temp;
+            }
+        }
+    }
+
     draw(imageData, size) {
         let i,j;
         var count = 0;
+        // var rotCount = 0;
         for (i = 0, j = 0; i < size; i += 4, j++) {
             count += this.nutrients[j];
+            // rotCount += this.rot[j];
             imageData.data[i+0] = this.nutrients[j];
-            imageData.data[i+1] = 0;
+            imageData.data[i+1] = this.rot[j];
             imageData.data[i+2] = 0;
             imageData.data[i+3] = 255;
         }
@@ -82,5 +107,10 @@ class Environment {
     set(x, y, amt) {
         this.nutrients[this.ix(x,y)] += amt;
         this.amount += amt;
+    }
+
+    setRot(x, y, amt) {
+        this.rot[this.ix(x,y)] += amt;
+        this.rotAmount += amt;
     }
 }

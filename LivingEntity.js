@@ -3,10 +3,13 @@ class LivingEntity extends Entity {
         super(x,y);
         this.nutrients = nutrients;
         this.hungerThreshold = 32
+        this.hungerPerSegment = 32;
         this.hungry = true;
-        this.maxNutrients = 256;
+        this.maxNutrients = 128;
+        this.nutrientsPerSegment = 128;
         this.waste = waste;
-        this.maxWaste = 1024;
+        this.wastePerSegment = 64;
+        this.maxWaste = 64;
         this.body = [{x:x,y:y}];
         this.ptr = 0;
         this.length = length;
@@ -120,10 +123,13 @@ class LivingEntity extends Entity {
         for (let i = 0; i < halfLength; i++) {
             obj.body[i] = this.body[this.length+i];
         }
-        if (Math.random() < this.splitChance) this.die();
+        if (Math.random()*this.length < this.splitChance*10) this.die();
     }
 
     grow() {
         this.body[this.length++] = {x:this.x, y:this.y};
+        this.maxWaste = this.length * this.wastePerSegment;
+        this.maxNutrients = this.length * this.nutrientsPerSegment;
+        this.hungerThreshold = this.length * this.hungerPerSegment;
     }
 }
