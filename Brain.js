@@ -46,35 +46,31 @@ class Brain {
 			this.outputs[i] = {'value': 0};
 		}
 		for (i = 0; i < this.hidden.length; i++) {
-			this.hidden[i] = new Node(this.outputs,this.hiddenWeights);
+			this.hidden[i] = new Node(this.outputs,this.hiddenWeights[i]);
 		}
 		for (i = 0; i < this.inputs.length; i++) {
-			this.inputs[i] = new Node(this.hidden,this.inputWeights);
+			this.inputs[i] = new Node(this.hidden,this.inputWeights[i]);
 		}
 		console.log("inputs: " + this.inputs.length);
 	}
 	
 	think(senses) {
 		let i;
-		let out = '';
-
+		let retval = [];
+		// console.log(senses);
 		for (i = 0; i < this.inputs.length; i++) {
 			this.inputs[i].value = senses[i];
 			this.inputs[i].output();
-			out += senses[i] + ', ';
 		}
-		console.log('Inputs: ' + out);
-		out = '';
 		for (i = 0; i < this.hidden.length; i++) {
 			this.hidden[i].output();
-			out += this.hidden[i].value + ', ';
 		}
-		console.log('Hidden: ' + out);
-		out = '';
-		for (i = 0; i < this.hidden.length; i++) {
-			out += this.outputs[i].value + ', ';
+		for (i = 0; i < this.outputs.length; i++) {
+			retval.push(this.outputs[i].value);
+			// console.log('Output[' + i + ']: ' + this.outputs[i].value);
+			this.outputs[i].value = 0;
 		}
-		console.log('Outputs: ' + out);
+		return retval;
 	}
 
 }
@@ -87,13 +83,11 @@ class Node {
 	}
 
 	output() {
-		console.log(this.value);
+		// console.log(this.value);
 		this.value = 1/(1+Math.pow(Math.E,-this.value));
-		console.log(this.value);
+		// console.log(this.value);
 		for (let i = 0; i < this.connections.length; i++) {
-			console.log("Connection[" + i+"]: " + this.connections[i].value);
 			this.connections[i].value += this.value * this.weights[i];
-			console.log("Connection[" + i+"]: " + this.connections[i].value);
 		}
 		this.value = 0;
 	}

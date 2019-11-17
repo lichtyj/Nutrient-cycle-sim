@@ -9,6 +9,17 @@ class Genes {
         return obj;
     }
 
+    static createCopy(genes) {
+        let obj = new Genes(genes.inputWeights, genes.hiddenWeights);
+        return obj;
+    }
+
+    static createMutantCopy(genes, mutation) {
+        let obj = new Genes(genes.inputWeights, genes.hiddenWeights);
+        obj.mutate(mutation);
+        return obj;
+    }
+
     static createRandom(inputs, hidden, outputs, min, max) {
         if (min == undefined) min = 0;
         if (max == undefined) max = 1;
