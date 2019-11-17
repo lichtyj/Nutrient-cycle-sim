@@ -1,5 +1,5 @@
 class LivingEntity extends Entity {
-    constructor(x,y, nutrients, waste, length, splitChance) {
+    constructor(x,y, nutrients, waste, length, genes) {
         super(x,y);
         this.nutrients = nutrients;
         this.hungerThreshold = 32
@@ -10,16 +10,18 @@ class LivingEntity extends Entity {
         this.body = [{x:x,y:y}];
         this.ptr = 0;
         this.length = length;
-        this.splitChance = splitChance;
+        this.genes = genes;
         this.last = Math.random()*4|0;
+        this.mem;
+        this.brain = Brain.create(this.genes.hidden);
     }
 
-    static create(x,y, nutrients, waste, length, splitChance) {
+    static create(x,y, nutrients, waste, length, genes) {
         if (nutrients == undefined) nutrients = 0;
         if (waste == undefined) waste = 0;
         if (length == undefined) length = 1;
-        if (splitChance == undefined) splitChance = 0.05;
-        let obj = new LivingEntity(x, y, nutrients, waste, length, splitChance);
+        if (genes == undefined) genes = Genes.create();
+        let obj = new LivingEntity(x, y, nutrients, waste, length, genes);
         game.addEntity(obj);
         return obj;
     }
@@ -53,11 +55,7 @@ class LivingEntity extends Entity {
         let amount = game.eat(this.x, this.y, 2 * this.length);
         this.nutrients += amount;
         if (this.nutrients > this.maxNutrients) {
-            if (Math.random() > this.splitChance || this.length < 2) {
-                this.grow();
-            } else {
-                this.split();
-            }
+            this.grow();
             this.hungry = false;
         }
     }
@@ -116,11 +114,14 @@ class LivingEntity extends Entity {
         this.length -= halfLength;
         this.ptr += halfLength;
         this.ptr %= this.length;
-        let obj = LivingEntity.create(this.body[this.ptr].x, this.body[this.ptr].y, halfNutrients, halfWaste, halfLength, this.splitChance * (Math.random()/10+1));
+        let obj = LivingEntity.create(this.body[this.ptr].x, this.body[this.ptr].y, halfNutrients, halfWaste, halfLength, this.genes * (Math.random()/10+1));
         for (let i = 0; i < halfLength; i++) {
             obj.body[i] = this.body[this.length+i];
         }
-        if (Math.random() < this.splitChance) this.die();
+    }
+
+    think() {
+        this.brain.think()
     }
 
     grow() {

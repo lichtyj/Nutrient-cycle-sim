@@ -3,6 +3,8 @@ class Environment {
         this.size = size;
         this.nutrients = new Array(size * size);
         this.nutrients_last = new Array(size * size);
+        this.rot = new Array(size * size);
+        this.rot_last = new Array(size * size);
         this.flip = false;
         this.amount = 20000000;
     }
