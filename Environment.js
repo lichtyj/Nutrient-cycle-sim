@@ -31,6 +31,22 @@ class Environment {
         }
     }
 
+    getPosNutrients(x,y) {
+        if (x < 0) x += this.size;
+        if (y < 0) y += this.size;
+        if (x >= this.size) x %= this.size;
+        if (y >= this.size) y %= this.size;
+        return this.nutrients[this.ix(x,y)];
+    }
+
+    getPosWaste(x,y) {
+        if (x < 0) x += this.size;
+        if (y < 0) y += this.size;
+        if (x >= this.size) x %= this.size;
+        if (y >= this.size) y %= this.size;
+        return this.rot[this.ix(x,y)];
+    }
+
     ix(x,y) {
         return (x+y*this.size);
     }

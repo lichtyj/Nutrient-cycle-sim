@@ -14,19 +14,24 @@ class LivingEntity extends Entity {
         this.ptr = 0;
         this.length = length;
         this.genes = genes;
-        this.last = Math.random()*4|0;
+        this.direction = Math.random()*4|0;
         this.mem;
-        this.brain = Brain.create(this.genes.hidden);
+        this.brain;
     }
 
     static create(x,y, nutrients, waste, length, genes) {
         if (nutrients == undefined) nutrients = 0;
         if (waste == undefined) waste = 0;
         if (length == undefined) length = 1;
-        if (genes == undefined) genes = Genes.create();
+        if (genes == undefined) genes = Genes.createRandom(13,6,6,0,1);
         let obj = new LivingEntity(x, y, nutrients, waste, length, genes);
+        obj.init();
         game.addEntity(obj);
         return obj;
+    }
+
+    init() {
+        this.brain = Brain.create(this.genes);
     }
 
     update(dt) {
@@ -34,8 +39,9 @@ class LivingEntity extends Entity {
             this.die();
         } else {
             if (this.hungry) this.eat();
-            this.metabolize();
-            this.move();
+			this.metabolize();
+			// this.think();
+			this.move();
         }
     }
 
@@ -73,15 +79,57 @@ class LivingEntity extends Entity {
         }
     }
 
+    think() {
+		
+		let senses = new Array(13); // Get size from genes
+		let left, right, forward;
+		switch(this.direction) {
+			case 0:
+					left = 		{x:this.x - 1	, y:this.y};
+					right = 	{x:this.x + 1	, y:this.y};
+					forward = 	{x:this.x		, y:this.y - 1};
+					break;
+			case 1:
+					left = 		{x:this.x		, y:this.y - 1};
+					right = 	{x:this.x		, y:this.y + 1};
+					forward = 	{x:this.x + 1	, y:this.y};
+					break;
+			case 2:
+					left = 		{x:this.x + 1	, y:this.y};
+					right = 	{x:this.x - 1	, y:this.y};
+					forward = 	{x:this.x		, y:this.y + 1};
+					break;
+			case 3:
+					left = 		{x:this.x		, y:this.y + 1};
+					right = 	{x:this.x		, y:this.y - 1};
+					forward = 	{x:this.x - 1	, y:this.y};
+					break;
+		}
+        senses[0] = game.environment.getPosNutrients(left.x, left.y)	// 1	left food
+        senses[1] = game.environment.getPosNutrients(right.x, right.y)	// 2	right food
+        senses[2] = game.environment.getPosNutrients(forward.x, forward.y)	// 3	forward food
+        senses[3] = game.environment.getPosNutrients(this.x, this.y)	// 4	current food
+        senses[4] = game.environment.getPosWaste(left.x, left.y)	// 5	left waste
+        senses[5] = game.environment.getPosWaste(right.x, right.y)	// 6	right waste
+        senses[6] = game.environment.getPosWaste(forward.x, forward.y)	// 7	forward waste
+        senses[7] = game.environment.getPosWaste(this.x, this.y)	// 8	current waste
+        senses[8] = this.direction	// 9	Direction
+        senses[9] = this.length	// 10	Length
+        senses[10] = this.waste	// 11	Waste
+        senses[11] = this.nutrients	// 12	Nutrition
+        senses[12] = this.mem	// 13	Mem (undefined)
+        this.brain.think(senses);
+    }
+
     move() {
-        this.last += (Math.random()*3 | 0) + 2;
-        this.last %= 4;
-        switch(this.last) {
+        this.direction += (Math.random()*3 | 0) + 2;
+        this.direction %= 4;
+        switch(this.direction) {
             case 0:
-                this.x += 1;
+                this.y -= 1;
                 break;
             case 1:
-                this.x -= 1;
+                this.x += 1;
                 break;
             case 2:
                 this.y += 1;

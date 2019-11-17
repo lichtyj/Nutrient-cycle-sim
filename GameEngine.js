@@ -16,7 +16,7 @@ class GameEngine {
         this.environment = new Environment(512,512);
         this.environment.init();
 
-        for(let i = 0; i < 100; i++) {
+        for(let i = 0; i < 1; i++) {
             LivingEntity.create(Math.random()*this.size | 0, Math.random()*this.size | 0, 255);
         }
     }
